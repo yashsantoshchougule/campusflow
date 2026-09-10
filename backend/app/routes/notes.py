@@ -1,0 +1,390 @@
+from fastapi import APIRouter, HTTPException, status, UploadFile, File, Form
+from fastapi.responses import StreamingResponse
+from typing import List, Optional
+from bson import ObjectId
+from datetime import datetime
+import os
+import io
+import re
+import zipfile
+import shutil
+
+from app.models.database import get_database
+from app.models.schemas import Note
+from app.services.rag_service import get_rag_system
+from app.services.gemini_service import gemini_service
+from app.services.longcat_service import longcat_service
+from app.services.mistral_service import mistral_service
+from app.services.export_service import export_service
+from app.utils.file_processor import extract_text_from_file
+from app.utils.logger import get_logger
+
+router = APIRouter(prefix="/api/notes", tags=["notes"])
+logger = get_logger("NOTES")
+
+
+@router.get("/", response_model=List[dict])
+async def get_notes(folder_id: Optional[str] = None):
+    """Get all notes or notes in a specific folder."""
+    logger.info(f"Fetching notes" + (f" for folder: {folder_id}" if folder_id else " (all folders)"))
+    db = get_database()
+    
+    query = {}
+    if folder_id:
+        query["folder_id"] = folder_id
+    
+    notes = await db.notes.find(query).sort("updated_at", -1).to_list(1000)
+    logger.success(f"Retrieved {len(notes)} notes")
+    
+    # Convert ObjectId to string
+    for note in notes:
+        note["id"] = str(note["_id"])
+        del note["_id"]
+    
+    return notes
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_note(note: dict):
+    """Create a new note and add to RAG index."""
+    logger.info(f"Creating new note: {note.get('title', 'Untitled')}")
+    db = get_database()
+    
+    note_data = {
+        "title": note.get("title"),
+        "content": note.get("content", ""),
+        "folder_id": note.get("folder_id"),
+        "model_used": note.get("model_used"),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    result = await db.notes.insert_one(note_data)
+    note_id = str(result.inserted_id)
+    logger.debug(f"Note inserted with ID: {note_id}")
+    
+    # Add to RAG index
+    try:
+        logger.info("Adding note to RAG index...")
+        rag = await get_rag_system()
+        await rag.add_note_to_index(
+            note_data["title"], 
+            note_data["content"],
+            note_id
+        )
+        logger.success(f"Note added to RAG index successfully")
+    except Exception as e:
+        logger.error(f"Failed to add note to RAG: {str(e)}", exc_info=e)
+    
+    note_data["id"] = note_id
+    if "_id" in note_data:
+        del note_data["_id"]
+    
+    logger.success(f"Note created successfully: {note_data['title']}")
+    return note_data
+
+
+@router.get("/{note_id}")
+async def get_note(note_id: str):
+    """Get a specific note."""
+    logger.info(f"Fetching note: {note_id}")
+    db = get_database()
+    
+    try:
+        note = await db.notes.find_one({"_id": ObjectId(note_id)})
+    except:
+        logger.error(f"Invalid note ID: {note_id}")
+        raise HTTPException(status_code=400, detail="Invalid note ID")
+    
+    if not note:
+        logger.warning(f"Note not found: {note_id}")
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    note["id"] = str(note["_id"])
+    del note["_id"]
+    
+    logger.success(f"Retrieved note: {note.get('title', 'Untitled')}")
+    return note
+
+
+@router.put("/{note_id}")
+async def update_note(note_id: str, note: dict):
+    """Update a note."""
+    logger.info(f"Updating note: {note_id}")
+    db = get_database()
+    
+    update_data = {
+        "title": note.get("title"),
+        "content": note.get("content"),
+        "folder_id": note.get("folder_id"),
+        "updated_at": datetime.utcnow()
+    }
+    
+    try:
+        result = await db.notes.update_one(
+            {"_id": ObjectId(note_id)},
+            {"$set": update_data}
+        )
+    except:
+        logger.error(f"Invalid note ID: {note_id}")
+        raise HTTPException(status_code=400, detail="Invalid note ID")
+    
+    if result.matched_count == 0:
+        logger.warning(f"Note not found: {note_id}")
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    # Update RAG index
+    try:
+        logger.info("Updating note in RAG index...")
+        rag = await get_rag_system()
+        await rag.add_note_to_index(
+            update_data["title"], 
+            update_data["content"],
+            note_id
+        )
+        logger.success("Note updated in RAG index")
+    except Exception as e:
+        logger.error(f"Failed to update note in RAG: {str(e)}", exc_info=e)
+    
+    logger.success(f"Note updated successfully: {update_data['title']}")
+    return {"message": "Note updated successfully"}
+
+
+@router.delete("/{note_id}")
+async def delete_note(note_id: str):
+    """Delete a note."""
+    logger.info(f"Deleting note: {note_id}")
+    db = get_database()
+    
+    try:
+        result = await db.notes.delete_one({"_id": ObjectId(note_id)})
+    except:
+        logger.error(f"Invalid note ID: {note_id}")
+        raise HTTPException(status_code=400, detail="Invalid note ID")
+    
+    if result.deleted_count == 0:
+        logger.warning(f"Note not found: {note_id}")
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    logger.success(f"Note deleted successfully: {note_id}")
+    return {"message": "Note deleted successfully"}
+
+
+# --------------------------------------------------------------------------- #
+#  LongCat model identifiers that use Mistral OCR → LongCat notes pipeline
+# --------------------------------------------------------------------------- #
+LONGCAT_NOTES_MODELS = {"LongCat-2.0-Preview"}
+
+
+@router.post("/generate")
+async def generate_notes(
+    model: str = Form(...),
+    files: List[UploadFile] = File(None)
+):
+    """Generate notes from uploaded files using AI with 2-phase approach.
+
+    Supported model paths:
+        gemini-*                      → Gemini (native file upload) + LongCat formatting
+        LongCat-2.0-Preview           → Mistral OCR + LongCat 2.0 Preview + LongCat formatting
+    """
+    logger.info(f"=== NOTES GENERATION STARTED ===")
+    logger.info(f"Requested model: {model}")
+
+    use_longcat = model in LONGCAT_NOTES_MODELS
+
+    # Save uploaded files temporarily
+    temp_files = []
+    extracted_text = ""
+
+    try:
+        if files:
+            logger.debug(f"Processing {len(files)} files")
+            os.makedirs("backend/uploads", exist_ok=True)
+
+            for file in files:
+                file_path = f"backend/uploads/{file.filename}"
+                with open(file_path, "wb") as buffer:
+                    shutil.copyfileobj(file.file, buffer)
+                temp_files.append(file_path)
+                logger.info(f"Saved file: {file.filename}")
+
+                # ----- Text extraction differs by model path -----
+                if use_longcat:
+                    # LongCat path: use Mistral OCR for text extraction
+                    logger.info(f"Using Mistral OCR for {file.filename}")
+                    text = mistral_service.ocr_extract(file_path)
+                else:
+                    # Gemini path: use default text extraction
+                    text = await extract_text_from_file(file_path)
+
+                extracted_text += text + "\n\n"
+                logger.debug(f"Extracted {len(text)} characters from {file.filename}")
+
+        if not extracted_text:
+            logger.error("No text extracted from files")
+            raise HTTPException(status_code=400, detail="No text could be extracted from files")
+
+        logger.info(f"Total extracted text: {len(extracted_text)} characters")
+
+        # ================================================================== #
+        #  PHASE 1: Generate study notes content
+        # ================================================================== #
+        if use_longcat:
+            # --- LongCat Phase 1 ---
+            logger.info(f"[PHASE 1] Starting LongCat note generation with model: {model}")
+            phase1_notes = await longcat_service.generate_notes(extracted_text, model)
+            phase1_model = model
+        else:
+            # --- Gemini Phase 1 (existing behaviour) ---
+            gemini_model = model if model.startswith("gemini") else "gemini-2.5-flash"
+            logger.info(f"[PHASE 1] Starting Gemini note generation with model: {gemini_model}")
+            phase1_notes = await gemini_service.generate_notes(
+                extracted_text,
+                gemini_model,
+                temp_files if files else None
+            )
+            phase1_model = gemini_model
+
+        logger.success(f"=== NOTES GENERATION COMPLETED SUCCESSFULLY ===")
+
+        return {
+            "note": {
+                "content": phase1_notes
+            },
+            "model_used": phase1_model,
+            "generation_phases": {
+                "phase1_model": phase1_model
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"Note generation failed: {str(e)}", exc_info=e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/format")
+async def format_notes(payload: dict):
+    """Format notes using LongCat on-demand."""
+    content = payload.get("content", "")
+    if not content:
+        raise HTTPException(status_code=400, detail="Content is required")
+
+    logger.info("Starting LongCat on-demand formatting")
+    try:
+        formatted = await longcat_service.format_notes(content)
+        # If longcat service returned an error string, return the original content and the error
+        if formatted.startswith("Error generating with LongCat:") or formatted.startswith("Error:"):
+            logger.warning(f"LongCat formatting failed: {formatted}. Returning original content.")
+            return {"content": content, "error": formatted}
+        
+        logger.success("LongCat formatting completed successfully")
+        return {"content": formatted}
+    except Exception as e:
+        error_msg = f"Error generating with LongCat: {str(e)}"
+        logger.error(f"LongCat formatting failed: {error_msg}")
+        return {"content": content, "error": error_msg}
+
+
+    finally:
+        # Clean up temporary files
+        for file_path in temp_files:
+            try:
+                os.remove(file_path)
+                logger.debug(f"Cleaned up: {file_path}")
+            except:
+                logger.warning(f"Failed to clean up: {file_path}")
+
+
+@router.get("/folder/{folder_id}/export-zip")
+async def export_folder_as_zip(folder_id: str, format: str = "pdf"):
+    """Export all notes in a folder as a ZIP file in the requested format."""
+    logger.info(f"Exporting folder {folder_id} as ZIP in {format} format")
+    db = get_database()
+
+    # Validate format
+    valid_formats = {"pdf", "docx", "txt", "md"}
+    if format not in valid_formats:
+        raise HTTPException(status_code=400, detail=f"Invalid format. Must be one of: {', '.join(valid_formats)}")
+
+    # Get folder info for naming
+    try:
+        folder = await db.folders.find_one({"_id": ObjectId(folder_id)})
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid folder ID")
+
+    if not folder:
+        raise HTTPException(status_code=404, detail="Folder not found")
+
+    folder_name = folder.get("name", "notes")
+
+    # Get all notes in the folder
+    notes = await db.notes.find({"folder_id": folder_id}).to_list(1000)
+    if not notes:
+        raise HTTPException(status_code=404, detail="No notes found in this folder")
+
+    logger.info(f"Found {len(notes)} notes in folder '{folder_name}'")
+
+    # Create zip in memory
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for note in notes:
+            title = note.get("title", "Untitled")
+            content = note.get("content", "")
+            # Sanitize filename
+            safe_title = re.sub(r'[^\w\s\-]', '', title).strip()
+            if not safe_title:
+                safe_title = "Untitled"
+
+            try:
+                if format == "pdf":
+                    file_data = await export_service.export_to_pdf(content, title, watermark=False)
+                    ext = "pdf"
+                elif format == "docx":
+                    file_data = export_service.export_to_docx(content, title)
+                    ext = "docx"
+                elif format == "txt":
+                    file_data = export_service.export_to_txt(content, title)
+                    ext = "txt"
+                else:  # md
+                    file_data = export_service.export_to_markdown(content, title)
+                    ext = "md"
+
+                zf.writestr(f"{safe_title}.{ext}", file_data.read())
+            except Exception as e:
+                logger.error(f"Failed to export note '{title}': {str(e)}")
+                # Skip notes that fail to export instead of failing the whole zip
+                continue
+
+    zip_buffer.seek(0)
+    safe_folder_name = re.sub(r'[^\w\s\-]', '', folder_name).strip() or "notes"
+    zip_filename = f"{safe_folder_name}.zip"
+
+    logger.success(f"Successfully created ZIP with {len(notes)} notes")
+    return StreamingResponse(
+        zip_buffer,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename={zip_filename}"},
+    )
+
+
+@router.get("/search/{query}")
+async def search_notes(query: str):
+    """Search notes by title or content."""
+    logger.info(f"Searching notes with query: {query}")
+    db = get_database()
+    
+    notes = await db.notes.find({
+        "$or": [
+            {"title": {"$regex": query, "$options": "i"}},
+            {"content": {"$regex": query, "$options": "i"}}
+        ]
+    }).to_list(100)
+    
+    logger.success(f"Found {len(notes)} notes matching query: {query}")
+    
+    # Convert ObjectId to string
+    for note in notes:
+        note["id"] = str(note["_id"])
+        del note["_id"]
+    
+    return notes
