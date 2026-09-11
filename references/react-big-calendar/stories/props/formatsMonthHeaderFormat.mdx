@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './formatsMonthHeaderFormat.stories'
+
+# formats.monthHeaderFormat
+
+- type: `function (date: Date, culture: ?string, localizer: DateLocalizer) => string`
+
+Toolbar header format for the Month view, e.g "2015 April"
+
+<Canvas of={Stories.FormatsMonthHeaderFormat} meta={Stories} />

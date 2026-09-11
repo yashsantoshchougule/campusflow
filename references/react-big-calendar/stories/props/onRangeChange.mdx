@@ -1,0 +1,15 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './onRangeChange.stories'
+
+# onRangeChange
+
+- type: `function (range: Array [1|7] | Object {start: Date, end: Date}) => // do something`
+
+Callback fired when the visible date range changes. Returns an Array of dates or an object with start and end dates for BUILTIN views.
+
+Custom views may return something different.
+
+_Note:_ This method is not fired on initial render. Only as the user navigates through Big Calendar.
+
+<Canvas of={Stories.OnRangeChange} meta={Stories} />

@@ -1,0 +1,70 @@
+[33m4a4ea8a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m feat: Add final assessment scheduling and generation functionality in roadmap module
+[33m22b06e6[m feat: Enhance roadmap functionality with quiz integration and topic management
+[33m8827714[m feat: Implement roadmap module with endpoints for generating, retrieving, updating, and deleting roadmaps
+[33mbf138fc[m feat: Enhance analytics widgets with animations and improved UI
+[33mcc785e3[m refactor: remove legacy analytics components and update dashboard navigation
+[33m2203240[m Add analytics widgets for enhanced dashboard insights
+[33m6f8ac8d[m feat: Enhance analytics components with new SubjectSelector and SummaryCards
+[33m0ddb4aa[m feat: implement analytics dashboard with charts, tables, and subject selection
+[33m84200d8[m feat: refactor RoadmapScreen to use API functions for roadmap operations and add roadmap stats utility
+[33m63a2a57[m feat: add comprehensive documentation for Study Module including backend, frontend, API layer, and feature roadmap
+[33m7f3d012[m feat: implement book progress tracking and last opened updates in BookReader and StudyScreen
+[33md63b654[m feat: integrate PDF.js for PDF viewing in BookReader component
+[33m8f220f5[m feat: add BookReader component and integrate book selection in StudyScreen
+[33m51d6354[m feat: implement book retrieval functionality and add PDF opening feature in StudyScreen
+[33me5cfe5b[m feat: enhance book management features by implementing fetch and delete functionalities, and improving UI loading states
+[33m159c22b[m Merge branch 'main' of https://github.com/prateEKsaha07/RAG_v2
+[33m0d801a5[m feat: implement book upload functionality and modularize books module
+[33m06c113d[m Update README.md
+[33m53b3bb5[m Update README.md
+[33m09b1b43[m feat: add dashboard components including navigation, hero section, study workspace, progress overview, roadmap widget, coach widget, upcoming schedule, weekly progress, study streak, and quick actions
+[33mcad0c11[m fix: update image URLs in FeatureCarousel for consistency
+[33mccee5ef[m feat: add QAScreen component for interactive Q&A functionality
+[33m4d6a08a[m Add new modules for Analytics, Ingestion, Notes, Qa, Quiz, and Roadmap
+[33m8e64643[m feat: Add subject upload functionality and enhance UploadScreen with existing subjects retrieval
+[33m5502b8e[m feat: Enhance notes ingestion with user-specific FAISS indexing and improve error handling
+[33m6551230[m refactor: Convert async functions to synchronous for note management endpoints; update note handling with Supabase integration
+[33m205e11c[m refactor: Clean up whitespace and comments in main.py, roadmap.py, and GoalSetupScreen.jsx
+[33meacc408[m feat: Integrate Supabase for roadmap management; enhance note and roadmap endpoints with user authentication
+[33m84496da[m Merge branch 'main' of https://github.com/prateEKsaha07/RAG_v2
+[33m1df6efa[m feat: Upgrade notes functionality with Supabase integration; enhance note ingestion and retrieval with user authentication
+[33m3838321[m Update README.md
+[33mbee5abb[m feat: Enhance note retrieval and editing with Supabase authentication; add user verification for note access
+[33m08c3b0d[m feat: Implement Supabase integration for note deletion; enhance delete functionality with user authentication
+[33m51ed33b[m feat: Upgrade notes functionality with Supabase integration; add user-specific note retrieval and update capabilities
+[33m28f11ec[m fix: Correct indentation and add comment for Supabase endpoints in notes.py
+[33m1cfd77a[m feat: Enhance analytics and note management with Supabase integration; add new AI-related notes
+[33madf59a6[m feat: Revamp Signup Screen with Enhanced UI and Functionality
+[33m918fe00[m Merge branch 'main' of https://github.com/prateEKsaha07/RAG_v2
+[33m8b5a788[m Update requirements.txt to include supabase dependency
+[33m281fa2d[m Update README.md
+[33m152ef0b[m Implement user authentication and analytics enhancements; refactor quiz history storage to Supabase
+[33m1dbda7b[m Add Java notes and initial API structure
+[33mdbf3aa9[m Merge branch 'main' of https://github.com/prateEKsaha07/RAG_v2
+[33m1b3afee[m Add Java roadmap and documentation, implement authentication screens with Supabase
+[33m13675a2[m Update README with testing note
+[33m0f3fb55[m Update README.md
+[33mcb68b4a[m create License
+[33m0313cdf[m Merge branch 'main' of https://github.com/prateEKsaha07/RAG_v2
+[33mc1e70a9[m feat: add analytics screen and integrate into app navigation
+[33m58eb713[m fgd
+[33m191cce4[m Readme.md
+[33mf3cca3e[m feat: add Goal Setup and Roadmap screens with functionality for roadmap generation and management
+[33m89e96a8[m feat: implement roadmap generation and management features with quiz history tracking
+[33m740529e[m feat: add note management features with editor and viewer
+[33mf360d09[m refactor: remove unnecessary blank lines in main.py
+[33m70fb773[m feat: Implement notes management system with CRUD operations and tagging functionality
+[33mb174581[m refactor: clean up unused imports and improve LandingPage text
+[33mdac5cb7[m feat: enhance frontend with new components and API integration
+[33m8c9a0db[m fix: Update CORS settings to allow all origins
+[33m7195fe7[m feat: Add QuizScreen, ResultScreen, and UploadScreen components for quiz functionality
+[33m5cb4480[m fix: Update API endpoints to use production URLs for quiz and upload functionalities
+[33m5810d2b[m refactor: Replace HuggingFace embeddings with Cohere embeddings and update ingestion logic
+[33m61c0792[m chore: Add requirements.txt for backend dependencies
+[33m075cb91[m ready for deployment
+[33m7216821[m Refactor code structure for improved readability and maintainability
+[33m01adb65[m feat: Add quiz functionality with upload and result screens
+[33md021255[m Refactor ingestion process and implement FastAPI endpoints for quiz generation and evaluation
+[33m9758489[m Implement quiz generation and evaluation functionality with topic recommendations
+[33m79e0b11[m Remove historical and sports text files; update ingestion and query scripts for markdown support and improved data handling
+[33m7db2bd3[m Add initial data processing and embedding functionality

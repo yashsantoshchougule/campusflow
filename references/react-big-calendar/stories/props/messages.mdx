@@ -1,0 +1,40 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './messages.stories'
+
+# messages
+
+- type: `Object`
+
+String messages used throughout the component, override to provide localizations for button text, `title` attributes and more.
+
+defaults
+
+```js
+{
+  date: 'Date',
+  time: 'Time',
+  event: 'Event',
+  allDay: 'All Day',
+  week: 'Week',
+  work_week: 'Work Week',
+  day: 'Day',
+  month: 'Month',
+  previous: 'Back',
+  next: 'Next',
+  yesterday: 'Yesterday',
+  tomorrow: 'Tomorrow',
+  today: 'Today',
+  agenda: 'Agenda',
+
+  noEventsInRange: 'There are no events in this range.',
+  /**
+   * params {total} count of remaining events 
+   * params {remainingEvents} remaining events 
+   * params {events} all events in day
+   */
+  showMore: (total, remainingEvents, events) => `+${total} más`,
+}
+```
+
+<Canvas of={Stories.Messages} meta={Stories} />

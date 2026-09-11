@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './formatsDayHeaderFormat.stories'
+
+# formats.dayHeaderFormat
+
+- type: `function (date: Date, culture: ?string, localizer: DateLocalizer) => string`
+
+Toolbar header format for the Day view, e.g. "Wednesday Apr 01"
+
+<Canvas of={Stories.FormatsDayHeaderFormat} meta={Stories} />

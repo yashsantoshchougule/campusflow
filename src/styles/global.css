@@ -1,17 +1,17 @@
 :root {
   /* Colors */
-  --bg-primary: #111;
-  --bg-alt: #1a1a1a;
-  --bg-panel: #222;
-  --bg-panel-hover: #2a2a2a;
-  --bg-input: #1a1a1a;
+  --bg-primary: #f8fafc;
+  --bg-alt: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-panel-hover: #f1f5f9;
+  --bg-input: #ffffff;
   
-  --border-color: #333;
-  --border-hover: #444;
+  --border-color: #dbe2ea;
+  --border-hover: #b8c3d1;
   
-  --text-primary: #e5e5e5;
-  --text-secondary: #b5b5b5;
-  --text-muted: #888;
+  --text-primary: #172033;
+  --text-secondary: #526071;
+  --text-muted: #64748b;
   
   --accent: #4a9eff;
   --accent-hover: #3a8eef;
@@ -45,9 +45,9 @@
   --radius-xl: 16px;
   
   /* Shadows */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.14);
 }
 
 * {

@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './formatsAgendaHeaderFormat.stories'
+
+# formats.agendaHeaderFormat
+
+- type: `function (range: Object {start: Date, end: Date}, culture: ?string, localizer: DateLocalizer) => string`
+
+Toolbar header format for the Agenda view, e.g. "4/1/2015 — 5/1/2015"
+
+<Canvas of={Stories.FormatsAgendHeaderFormat} meta={Stories} />

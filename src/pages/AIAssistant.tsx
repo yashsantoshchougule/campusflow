@@ -5,7 +5,6 @@ import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import { chatWithAssistant, getChatMessages, getFolders, getNotes, exportPen2PDF } from '../services/api';
 import type { ChatMessage, Folder, Note } from '../types';
-import { AI_MODELS } from '../types';
 import 'katex/dist/katex.min.css';
 import './AIAssistant.css';
 
@@ -21,7 +20,6 @@ const AIAssistant = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
-  const [model, setModel] = useState(AI_MODELS[2].value);
   const [useRAG, setUseRAG] = useState(true);
   const [isolateMessage, setIsolateMessage] = useState(false);
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -111,7 +109,6 @@ const AIAssistant = () => {
       const response = await chatWithAssistant({
         message: input,
         conversation_history: conversationHistory,
-        model,
         use_rag: useRAG,
         folder_ids: useRAG ? selectedFolders : undefined,
         note_ids: selectedNotes.length > 0 ? selectedNotes : undefined,
@@ -190,10 +187,7 @@ const AIAssistant = () => {
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const selectedModel = AI_MODELS.find(m => m.value === model);
-      if (selectedModel?.supportsFiles) {
-        setUploadedFile(e.target.files[0]);
-      }
+      setUploadedFile(e.target.files[0]);
     }
   };
 
@@ -212,7 +206,7 @@ const AIAssistant = () => {
       // Convert conversation to markdown
       let markdown = `# ${exportFilename}\n\n`;
       markdown += `**Date:** ${new Date().toLocaleDateString()}\n\n`;
-      markdown += `**Model:** ${model}\n\n`;
+      markdown += `**AI:** CampusFlow backend\n\n`;
       markdown += `---\n\n`;
       
       messages.forEach((msg) => {
@@ -247,9 +241,6 @@ const AIAssistant = () => {
       setExportLoading(false);
     }
   };
-
-  const selectedModelObj = AI_MODELS.find(m => m.value === model);
-  const supportsFiles = selectedModelObj?.supportsFiles || false;
 
   return (
     <div className="ai-assistant-new">
@@ -331,25 +322,13 @@ const AIAssistant = () => {
           {/* Controls (Bottom) */}
           <div className="controls-bottom">
             <div className="control-row">
-              <select 
-                value={model} 
-                onChange={(e) => setModel(e.target.value)} 
-                className="model-select-compact"
-              >
-                {AI_MODELS.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-
               <label className="checkbox-compact">
                 <input
                   type="checkbox"
                   checked={useRAG}
                   onChange={(e) => setUseRAG(e.target.checked)}
                 />
-                <span>Use RAG</span>
+                <span>Use notes</span>
               </label>
 
               <label className="checkbox-compact">
@@ -408,9 +387,8 @@ const AIAssistant = () => {
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className={`attach-button ${!supportsFiles ? 'disabled' : ''}`}
-                disabled={!supportsFiles}
-                title={supportsFiles ? 'Attach file' : 'File upload only available for Gemini models'}
+                className="attach-button"
+                title="Attach file"
               >
                 📎
               </button>

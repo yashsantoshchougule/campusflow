@@ -1,0 +1,39 @@
+import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
+import { mockAcademicRepository } from '../features/academics/repository';
+import type { Subject } from '../features/academics/models';
+import { profileService } from '../features/profile/service';
+import { profileRepository, defaultProfile, defaultStudyPreferences } from '../features/profile/repository';
+import type { StudentProfile, StudyPreferences, StudyPreferenceSuggestion } from '../features/profile/models';
+import './AccountPages.css';
+
+const selectedValues = (event: ChangeEvent<HTMLSelectElement>) => [...event.target.selectedOptions].map((option) => option.value);
+
+export default function ProfilePage() {
+  const [profile, setProfile] = useState<StudentProfile>(defaultProfile());
+  const [preferences, setPreferences] = useState<StudyPreferences>(defaultStudyPreferences());
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [editing, setEditing] = useState(false);
+  const [avatar, setAvatar] = useState<File>();
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [suggestion, setSuggestion] = useState<StudyPreferenceSuggestion>();
+  const [message, setMessage] = useState('');
+  const fetchProfile = useCallback(async () => { const [[nextProfile, nextPreferences], nextSubjects] = await Promise.all([profileService.load(), mockAcademicRepository.getSubjects()]); return { nextProfile, nextPreferences, nextSubjects, nextAvatarUrl: await profileService.avatarUrl(nextProfile.avatarFileId) }; }, []);
+  useEffect(() => {
+    const apply = ({ nextProfile, nextPreferences, nextSubjects, nextAvatarUrl }: Awaited<ReturnType<typeof fetchProfile>>) => { setProfile(nextProfile); setPreferences(nextPreferences); setSubjects(nextSubjects); setAvatarUrl(nextAvatarUrl); };
+    void fetchProfile().then(apply); return profileRepository.subscribe(() => void fetchProfile().then(apply));
+  }, [fetchProfile]);
+  useEffect(() => () => { if (avatarUrl) URL.revokeObjectURL(avatarUrl); }, [avatarUrl]);
+  const change = (field: keyof StudentProfile, value: string) => setProfile((current) => ({ ...current, [field]: value }));
+  const saveProfile = async () => { setMessage(''); try { const saved = await profileService.saveProfile(profile, avatar); setProfile(saved); setAvatar(undefined); setEditing(false); setAvatarUrl(await profileService.avatarUrl(saved.avatarFileId)); setMessage('Profile saved locally.'); } catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to save profile.'); } };
+  const savePreferences = async () => { setMessage(''); try { setPreferences(await profileService.savePreferences(preferences, subjects)); setMessage('Study preferences saved. They personalise Study Planner and Study AI only.'); } catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to save study preferences.'); } };
+
+  return <section className="account-page"><header><h1>Profile</h1><p>Personal details and student-confirmed study preferences.</p></header>{message && <p className="account-message" role="status">{message}</p>}
+    <section className="account-card"><h2>Personal and academic details</h2><div className="profile-avatar">{avatarUrl ? <img src={avatarUrl} alt="Profile" /> : <span aria-label="No profile image">No image</span>}{editing && <><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setAvatar(event.target.files?.[0])} />{profile.avatarFileId && <button onClick={() => void profileService.removeAvatar(profile).then((saved) => { setProfile(saved); setAvatarUrl(''); })}>Remove image</button>}</>}</div>
+      <div className="account-grid"><label>Full name<input disabled={!editing} value={profile.fullName} onChange={(event) => change('fullName', event.target.value)} /></label><label>Email<input type="email" disabled={!editing} value={profile.email} onChange={(event) => change('email', event.target.value)} /></label><label>Student ID<input disabled={!editing} value={profile.studentId} onChange={(event) => change('studentId', event.target.value)} /><small>Temporarily editable locally; authentication will lock this field later.</small></label><label>College<input disabled={!editing} value={profile.college} onChange={(event) => change('college', event.target.value)} /></label><label>Course<input disabled={!editing} value={profile.course} onChange={(event) => change('course', event.target.value)} /></label><label>Department<input disabled={!editing} value={profile.department} onChange={(event) => change('department', event.target.value)} /></label><label>Semester<input type="number" min="1" max="20" disabled={!editing} value={profile.semester} onChange={(event) => change('semester', event.target.value)} /></label><label>Preferred language<select disabled={!editing} value={profile.preferredLanguage} onChange={(event) => change('preferredLanguage', event.target.value)}><option>English</option><option>Hindi</option><option>Marathi</option></select></label></div>
+      <p>Last updated: {profile.updatedAt ? new Date(profile.updatedAt).toLocaleString() : 'Not saved yet'}</p><div className="account-actions"><button onClick={() => setEditing(true)}>Edit profile</button><button disabled={!editing} onClick={() => void saveProfile()}>Save profile</button></div>
+    </section>
+    <section className="account-card"><h2>Study preferences</h2><p>These settings personalise Study Planner and Study AI. They never change official academic information or guarantee results.</p><div className="account-grid"><label>Preferred start time<input type="time" value={preferences.preferredStudyStartTime ?? ''} onChange={(event) => setPreferences({ ...preferences, preferredStudyStartTime: event.target.value || undefined })} /></label><label>Preferred end time<input type="time" value={preferences.preferredStudyEndTime ?? ''} onChange={(event) => setPreferences({ ...preferences, preferredStudyEndTime: event.target.value || undefined })} /></label><label>Average session duration<input type="number" min="1" max="480" value={preferences.averageSessionMinutes} onChange={(event) => setPreferences({ ...preferences, averageSessionMinutes: Number(event.target.value) })} /></label><label>Break preference<input type="number" min="0" max="120" value={preferences.breakPreferenceMinutes} onChange={(event) => setPreferences({ ...preferences, breakPreferenceMinutes: Number(event.target.value) })} /></label><label>Attendance target<input type="number" min="1" max="100" value={preferences.attendanceTargetPercent} onChange={(event) => setPreferences({ ...preferences, attendanceTargetPercent: Number(event.target.value) })} /></label><label>Strong subjects<select multiple value={preferences.strongSubjectIds} onChange={(event) => setPreferences({ ...preferences, strongSubjectIds: selectedValues(event) })}>{subjects.map((subject) => <option key={subject.id} value={subject.id}>{subject.name}</option>)}</select></label><label>Weak subjects<select multiple value={preferences.weakSubjectIds} onChange={(event) => setPreferences({ ...preferences, weakSubjectIds: selectedValues(event) })}>{subjects.map((subject) => <option key={subject.id} value={subject.id}>{subject.name}</option>)}</select></label></div>
+      <div className="account-actions"><button onClick={() => void savePreferences()}>Save preferences</button><button onClick={() => void profileService.resetPreferences().then((value) => { setPreferences(value); setMessage('Study preferences reset.'); })}>Reset preferences</button><button onClick={() => setSuggestion(profileService.suggestPreferences(subjects))}>Suggest from subject strengths</button></div>{suggestion && <div className="account-suggestion"><p>{suggestion.reason}</p><button onClick={() => setPreferences({ ...preferences, strongSubjectIds: suggestion.strongSubjectIds, weakSubjectIds: suggestion.weakSubjectIds })}>Apply suggestion for review</button></div>}
+    </section>
+  </section>;
+}

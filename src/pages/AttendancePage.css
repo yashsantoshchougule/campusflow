@@ -1,0 +1,28 @@
+.attendance-page { display: grid; gap: 1.25rem; }
+.attendance-page header p, .attendance-card p, .attendance-list p { color: var(--text-secondary); }
+.attendance-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+.attendance-summary div, .attendance-panel, .attendance-card, .attendance-empty { padding: 1rem; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: var(--radius-md); }
+.attendance-summary strong, .attendance-summary span { display: block; }
+.attendance-summary strong { font-size: 1.6rem; }
+.attendance-summary span { color: var(--text-secondary); }
+.attendance-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: .75rem; }
+.attendance-card { border-top: 4px solid var(--accent); }
+.attendance-card h3 small { color: var(--text-muted); }
+.attendance-percent { display: block; font-size: 2rem; }
+.attendance-card progress { width: 100%; height: .8rem; }
+.attendance-recommendation { margin: .6rem 0; }
+.attendance-tools { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.attendance-form, .attendance-target, .attendance-actions, .attendance-history-header { display: flex; flex-wrap: wrap; align-items: end; gap: .5rem; }
+.attendance-form label, .attendance-target label { display: grid; gap: .25rem; flex: 1 1 130px; color: var(--text-secondary); }
+.attendance-form button, .attendance-target button, .attendance-actions button { padding: .55rem .8rem; color: white; background: var(--accent); border-radius: var(--radius-sm); }
+.attendance-actions .danger { background: var(--danger); }
+.attendance-list { display: grid; gap: .6rem; }
+.attendance-list article { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .75rem; background: var(--bg-alt); border-radius: var(--radius-sm); }
+.attendance-result { margin-top: 1rem; padding: .75rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
+.attendance-result strong { font-size: 1.5rem; }
+.attendance-history-header { justify-content: space-between; }
+.attendance-message { padding: .7rem; border-radius: var(--radius-sm); }
+.attendance-message.success { color: var(--success); background: color-mix(in srgb, var(--success) 12%, transparent); }
+.attendance-message.error { color: #fca5a5; background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.attendance-loading { padding: 2rem; }
+@media (max-width: 800px) { .attendance-summary { grid-template-columns: repeat(2, 1fr); } .attendance-tools { grid-template-columns: 1fr; } .attendance-list article { align-items: flex-start; flex-direction: column; } }

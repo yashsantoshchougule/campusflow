@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import * as Stories from './allDayAccessor.stories'
+
+# allDayAccessor
+
+- type: `string | function (event: Object) => boolean`
+- default: 'allDay'
+
+Determines whether the event should be considered an "all day" event and ignore time. Must resolve to a `boolean` value.
+
+<Canvas of={Stories.AllDayAccessor} meta={Stories} />

@@ -1,0 +1,154 @@
+"use client";
+
+import { Layers, Play, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import { FlashcardPlayer } from "@/components/flashcards/FlashcardPlayer";
+import { Badge } from "@/components/ui/Badge";
+import { Button, buttonClasses } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { dueCount, isDue, type ReviewGrade, reviewCard } from "@/lib/srs";
+import { deleteDeck, listDecks, saveDeck } from "@/lib/storage";
+import type { Deck, Flashcard } from "@/lib/types";
+
+export function FlashcardsView() {
+  const [decks, setDecks] = useState<Deck[] | null>(null);
+  const [studying, setStudying] = useState<{ deck: Deck; cards: Flashcard[] } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Deck | null>(null);
+
+  const load = useCallback(async () => {
+    setDecks(await listDecks());
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      const loaded = await listDecks();
+      if (active) setDecks(loaded);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const startStudy = (deck: Deck) => {
+    const due = deck.cards.filter((c) => isDue(c));
+    const cards = due.length > 0 ? due : deck.cards;
+    setStudying({ deck, cards });
+  };
+
+  const handleGrade = useCallback(
+    async (card: Flashcard, grade: ReviewGrade) => {
+      if (!studying) return;
+      const updated = reviewCard(card, grade);
+      const nextDeck: Deck = {
+        ...studying.deck,
+        cards: studying.deck.cards.map((c) => (c.id === card.id ? updated : c)),
+        updatedAt: new Date().toISOString(),
+      };
+      setStudying({ ...studying, deck: nextDeck });
+      await saveDeck(nextDeck);
+    },
+    [studying],
+  );
+
+  const confirmDelete = useCallback(async () => {
+    if (!pendingDelete) return;
+    await deleteDeck(pendingDelete.id);
+    setPendingDelete(null);
+    await load();
+  }, [load, pendingDelete]);
+
+  if (studying) {
+    return (
+      <FlashcardPlayer
+        title={studying.deck.title}
+        cards={studying.cards}
+        onGrade={handleGrade}
+        onExit={() => {
+          setStudying(null);
+          void load();
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl text-ink">Flashcards</h1>
+          <p className="mt-1 text-sm text-ink-secondary">
+            Decks you have saved, with spaced self-grading. Everything is stored on this device.
+          </p>
+        </div>
+        <Link href="/tool" className={buttonClasses("primary")}>
+          <Plus size={16} strokeWidth={1.75} aria-hidden /> New deck
+        </Link>
+      </div>
+
+      {decks === null ? (
+        <p className="py-8 text-sm text-ink-secondary">Loading your decks…</p>
+      ) : decks.length === 0 ? (
+        <EmptyState
+          icon={Layers}
+          title="No decks yet"
+          description="Create your first deck from a PDF or pasted notes. Choose 'A flashcard deck' in the tool."
+          action={
+            <Link href="/tool" className={buttonClasses("primary")}>
+              Create a deck
+            </Link>
+          }
+        />
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2">
+          {decks.map((deck) => {
+            const due = dueCount(deck.cards);
+            return (
+              <li
+                key={deck.id}
+                className="flex flex-col gap-3 rounded-2xl border border-white/20 dark:border-white/5 bg-white/35 dark:bg-slate-900/40 backdrop-blur-md p-5 shadow-paper transition-all duration-200 hover:-translate-y-1 hover:shadow-lifted hover:bg-white/45 dark:hover:bg-slate-900/50"
+              >
+                <div className="flex items-start justify-between gap-3 min-w-0">
+                  <h2 className="font-display text-xl font-bold text-ink truncate flex-1">{deck.title}</h2>
+                  <button
+                    type="button"
+                    aria-label={`Delete ${deck.title}`}
+                    onClick={() => setPendingDelete(deck)}
+                    className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl text-ink-secondary transition-colors hover:bg-error-tint hover:text-error"
+                  >
+                    <Trash2 size={15} aria-hidden />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Badge tone="neutral">
+                    {deck.cards.length} {deck.cards.length === 1 ? "card" : "cards"}
+                  </Badge>
+                  {due > 0 ? (
+                    <Badge tone="highlight">{due} due</Badge>
+                  ) : (
+                    <Badge tone="success">All reviewed</Badge>
+                  )}
+                </div>
+                <Button variant="accent" size="sm" className="self-start mt-2" onClick={() => startStudy(deck)}>
+                  <Play size={15} strokeWidth={2} aria-hidden /> Study
+                </Button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete this deck?"
+        description={`"${pendingDelete?.title ?? ""}" and its review progress will be removed from this device. This can't be undone.`}
+        confirmLabel="Delete"
+        confirmVariant="destructive"
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
+    </div>
+  );
+}

@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './formatsTimeGutterFormat.stories'
+
+# formats.timeGutterFormat
+
+- type: `function (date: Date, culture: ?string, localizer: DateLocalizer) => string`
+
+The timestamp cell formats in Week and Time views, e.g. "4:00 AM"
+
+<Canvas of={Stories.FormatsTimeGutterFormat} meta={Stories} />

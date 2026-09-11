@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './resourceIdAccessor.stories'
+
+# resourceIdAccessor
+
+- type: `string | function (resource: Object) => string | number // must be unique`
+
+Provides a unique identifier, or an array of unique identifiers, for each resource in the <LinkTo kind="props" story="resources">resources</LinkTo> array
+
+<Canvas of={Stories.ResourceIdAccessor} meta={Stories} />

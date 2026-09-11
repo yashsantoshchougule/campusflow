@@ -1,0 +1,13 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import * as Stories from './showMultiDayTimes.stories'
+
+# showMultiDayTimes
+
+- type: `boolean`
+- default: `false`
+
+Support to show multi-day events with specific start and end times in the main time grid (rather than in the all day header).
+
+**Note: This may cause calendars with several events to look very busy in the week and day views.**
+
+<Canvas of={Stories.ShowMultiDayTimes} meta={Stories} />

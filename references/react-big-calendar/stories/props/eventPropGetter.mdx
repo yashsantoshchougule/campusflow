@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './eventPropGetter.stories'
+
+# eventPropGetter
+
+- type: `function (event: Object, start: Date, end: Date, isSelected: boolean) => {className?: string, style?: Object}`
+
+Optionally provide a function that returns an object of className or style props to be applied to the the event node.
+
+<Canvas of={Stories.EventPropGetter} meta={Stories} />

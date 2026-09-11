@@ -1,0 +1,46 @@
+# MK QuizFlow
+
+> MK QuizFlow turns PDFs and pasted notes into quizzes and flashcards, in your browser. The deterministic Quick mode works with zero AI keys; an optional AI layer produces reworded questions. Local-first: documents are never stored server-side, and all user data lives in the browser via IndexedDB.
+
+Site: https://thequizflow.com
+Author: Kazi Musharraf (https://www.mkazi.live)
+Source: https://github.com/mk-knight23/MK-QuizFlow
+License: MIT
+
+## Key features
+- Local-first processing: browser-side PDF text extraction with pdf.js. No document is uploaded or stored on a server.
+- Quick mode: deterministic keyword-heuristic questions generated locally, no AI keys or network calls.
+- AI mode: multiple choice, true/false, fill-in-the-blank, and short-answer sets via the Vercel AI Gateway, with honest degradation and optional bring-your-own-key.
+- Flashcards: spaced-repetition self-grading (Again, Hard, Good, Easy) stored in IndexedDB.
+- Weak-topic analysis: groups your missed questions into topics from local results only.
+
+## Primary pages
+- [Create quizzes](https://thequizflow.com/tool): upload a PDF or paste text, configure, generate, play.
+- [Flashcards](https://thequizflow.com/flashcards): study decks with spaced repetition.
+- [Dashboard](https://thequizflow.com/dashboard): real local study stats.
+- [Docs](https://thequizflow.com/docs): how the app works.
+- [FAQ](https://thequizflow.com/faq): privacy, PDF support, keys, storage.
+- [Creator](https://thequizflow.com/creator): about Kazi Musharraf.
+- [Privacy](https://thequizflow.com/privacy) and [Cookies](https://thequizflow.com/cookies): data handling and consent.
+
+## Guides
+- [How to Study Effectively with Active Recall](https://thequizflow.com/guides/how-to-study)
+- [Spaced Repetition for Exam Prep](https://thequizflow.com/guides/spaced-repetition)
+- [How to Extract Text from Complex PDFs Locally](https://thequizflow.com/guides/text-extraction)
+- [Cloze Deletion vs. Multiple Choice](https://thequizflow.com/guides/question-types)
+- [Creating Classroom Handouts from Lecture Notes](https://thequizflow.com/guides/classroom-handouts)
+- [Preparing for Professional Certifications](https://thequizflow.com/guides/certifications)
+- [Self-Grading Principles for Flashcards](https://thequizflow.com/guides/self-grading)
+- [Weak-Topic Analysis Explained](https://thequizflow.com/guides/weak-topic-analysis)
+
+## Use cases
+- [Exam preparation for students](https://thequizflow.com/use-cases/exam-prep)
+- [Creating classroom handouts](https://thequizflow.com/use-cases/teaching-handouts)
+- [Studying for professional certifications](https://thequizflow.com/use-cases/certification-study)
+- [Employee onboarding knowledge checks](https://thequizflow.com/use-cases/onboarding-training)
+- [Vocabulary and terminology acquisition](https://thequizflow.com/use-cases/language-vocab)
+
+## Tech stack
+- Next.js (App Router), strict TypeScript, Tailwind CSS v4
+- IndexedDB via the idb package for local persistence
+- Vercel AI SDK with Vercel AI Gateway model strings

@@ -1,0 +1,23 @@
+.landing-page { min-height: 100vh; color: inherit; }
+.landing-nav, .landing-hero, .landing-section, .landing-cta, .landing-footer { border: 1px solid currentColor; }
+.landing-nav { margin: 1rem; padding: 1rem; }
+.landing-nav nav, .landing-nav-links, .landing-actions, .landing-footer nav { display: flex; align-items: center; gap: 1rem; }
+.landing-logo { font-weight: 700; margin-right: auto; }
+.landing-menu-button { display: none; }
+.landing-main, .landing-footer { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+.landing-main { display: grid; gap: 1rem; }
+.landing-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 2rem; }
+.landing-hero h1 { font-size: clamp(2rem, 6vw, 4rem); }
+.landing-preview { min-height: 14rem; border: 1px solid currentColor; display: grid; place-items: center; padding: 1rem; }
+.landing-actions { margin: 1rem 0; flex-wrap: wrap; }
+.landing-actions a, .landing-nav-links a { border: 1px solid currentColor; padding: .5rem .75rem; }
+.landing-section, .landing-cta { padding: 1.5rem; }
+.landing-section > p { margin-bottom: 1rem; }
+.landing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.landing-card { border: 1px solid currentColor; padding: 1rem; }
+.landing-card ul, .landing-list { padding-left: 1.25rem; }
+.landing-step { display: flex; gap: .75rem; }
+.landing-step strong { border: 1px solid currentColor; width: 2rem; height: 2rem; display: grid; place-items: center; flex: 0 0 auto; }
+.landing-footer { border-width: 1px 0 0; margin-top: 1rem; display: grid; gap: .75rem; }
+.landing-page a:focus-visible, .landing-page button:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+@media (max-width: 700px) { .landing-nav nav { flex-wrap: wrap; } .landing-menu-button { display: block; } .landing-nav-links { display: none; width: 100%; flex-direction: column; align-items: stretch; } .landing-nav-links.is-open { display: flex; } .landing-hero { grid-template-columns: 1fr; padding: 1.5rem; } }

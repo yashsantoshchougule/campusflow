@@ -1,0 +1,20 @@
+{
+  "subject": "Unix",
+  "tags": [
+    "shell scripting",
+    "file system",
+    "process management",
+    "permissions",
+    "pipes and filters",
+    "grep and sed",
+    "awk",
+    "environment variables",
+    "cron jobs",
+    "network commands",
+    "user management",
+    "package management",
+    "vi editor",
+    "system calls",
+    "signals"
+  ]
+}

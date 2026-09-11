@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './formatsAgendaTimeRangeFormat.stories'
+
+# formats.agendaTimeRangeFormat
+
+- type: `function (range: Object {start: Date, end: Date}, culture: ?string, localizer: DateLocalizer) => string`
+
+Time range displayed in the gutter of the Agenda `view`
+
+<Canvas of={Stories.FormatsAgendaTimeRangeFormat} meta={Stories} />

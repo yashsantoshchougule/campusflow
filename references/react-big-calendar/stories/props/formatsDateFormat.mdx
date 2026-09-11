@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './formatsDateFormat.stories'
+
+# formats.dateFormat
+
+- type: `function (date: Date, culture: ?string, localizer: DateLocalizer) => string`
+
+Format for the day of the month heading in the Month view. e.g. "01", "02", "03", etc
+
+<Canvas of={Stories.FormatsDateFormat} meta={Stories} />

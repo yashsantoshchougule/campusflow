@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import * as Stories from './min.stories'
+
+# min
+
+- type: `instanceOf(Date)`
+- default: `new Date(1972, 0, 1, 0, 0, 0, 0)`
+
+Constrains the minimum time of the Day and Week views.
+
+<Canvas of={Stories.Min} meta={Stories} />

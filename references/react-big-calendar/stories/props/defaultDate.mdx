@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import * as Stories from './defaultDate.stories'
+
+# defaultDate
+
+- type: `instanceOf(Date)`
+- default: `new Date()`
+
+Sets the initial `date` value in your calendar when you don't want it to be 'today', when not using `getNow`, or controlling `date`.
+
+<Canvas of={Stories.DefaultDate} meta={Stories} />

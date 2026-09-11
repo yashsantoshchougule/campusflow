@@ -1,0 +1,12 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './draggableAccessor.stories'
+
+# draggableAccessor
+
+- type: `string|function (event) => boolean`
+- default: `() => true`
+
+When used, can determine whether an 'event' is draggable
+
+<Canvas of={Stories.DraggableAccessor} meta={Stories} />

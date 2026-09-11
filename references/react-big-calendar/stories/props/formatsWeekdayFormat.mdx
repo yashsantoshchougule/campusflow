@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './formatsWeekdayFormat.stories'
+
+# formats.weekdayFormat
+
+- type: `function (date: Date, culture: ?string, localizer: DateLocalizer) => string`
+
+Week day name format for the Month week day headings, e.g: "Sun", "Mon", "Tue", etc
+
+<Canvas of={Stories.FormatsWeekdayFormat} meta={Stories} />

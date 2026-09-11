@@ -1,0 +1,14 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './resizableAccessor.stories'
+
+# resizableAccessor
+
+- type: `string|function (event) => boolean`
+- default: `() => true`
+
+Determines if an event is resizable.
+
+**Note:** `resizable` events must also be draggable. You cannot resize an event with a <LinkTo kind="addons-drag-and-drop-props" story="draggable-accessor">draggableAccessor</LinkTo> prop of `false`.
+
+<Canvas of={Stories.ResizableAccessor} meta={Stories} />

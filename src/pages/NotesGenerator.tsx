@@ -8,15 +8,8 @@ import type { Folder } from '../types';
 import 'katex/dist/katex.min.css';
 import './NotesGenerator.css';
 
-const NOTES_MODELS = [
-  { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-  { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
-  { value: 'LongCat-2.0-Preview', label: 'LongCat 2.0 Preview' },
-];
-
 const NotesGenerator = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [model, setModel] = useState(NOTES_MODELS[0].value);
   const [markdown, setMarkdown] = useState('');
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(false);
@@ -84,7 +77,6 @@ const NotesGenerator = () => {
     try {
       const formData = new FormData();
       formData.append('files', file);
-      formData.append('model', model);
       
       const response = await generateNotes(formData);
       setMarkdown(response.data.note.content || '');
@@ -324,18 +316,6 @@ const NotesGenerator = () => {
           </div>
 
           <div className="options-row">
-            <select
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              className="model-select"
-            >
-              {NOTES_MODELS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-
             <button
               onClick={handleGenerate}
               disabled={!file || loading || formatting}

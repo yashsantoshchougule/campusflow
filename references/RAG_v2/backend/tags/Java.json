@@ -1,0 +1,126 @@
+{
+  "subject": "Java",
+  "units": [
+    {
+      "unit": 1,
+      "name": "Overview of Java",
+      "topics": [
+        "Features of Java",
+        "Byte-code",
+        "JVM",
+        "data types",
+        "variables and arrays",
+        "control statements",
+        "Introduction to Java class and object",
+        "main() function",
+        "garbage collection and finalize() method",
+        "this",
+        "inheritance",
+        "method overriding",
+        "dynamic method dispatching",
+        "super",
+        "final",
+        "package",
+        "interface",
+        "abstract class",
+        "class path",
+        "String and String Buffer Class"
+      ]
+    },
+    {
+      "unit": 2,
+      "name": "Exception Handling and Multithreading",
+      "topics": [
+        "Exception types",
+        "uncaught Exception",
+        "using try-catch",
+        "throw",
+        "throws",
+        "finally",
+        "Throwable class and object",
+        "Exception classes",
+        "create own exception subclass",
+        "Creating multiple threads",
+        "isAlive()",
+        "join()",
+        "Thread priorities",
+        "synchronization",
+        "Deadlock",
+        "wait()",
+        "notify()",
+        "notifyAll() methods",
+        "inter-thread communication",
+        "suspend",
+        "resume and stop the threads",
+        "Collection framework - HashSet, Array List, HashMap"
+      ]
+    },
+    {
+      "unit": 3,
+      "name": "Streams and Sockets",
+      "topics": [
+        "I/O classes & Interfaces",
+        "File",
+        "The Stream Classes",
+        "the Byte stream(InputStream, OutputStream, FileInputStream, FileOutputStream)",
+        "Serialization",
+        "Network basics",
+        "Networking classes and Interfaces",
+        "InetAddress",
+        "TCP/IP Client/Server socket",
+        "URL",
+        "URL Connection",
+        "Datagram",
+        "Introduction to RMI"
+      ]
+    },
+    {
+      "unit": 4,
+      "name": "Event Handling and Swing",
+      "topics": [
+        "Delegation event model",
+        "event classes",
+        "Event listener interface",
+        "Layout managers",
+        "Swing: benefits of Swing over AWT",
+        "JFrames",
+        "JPanels",
+        "JLabels",
+        "JButtons",
+        "JTabbedPane",
+        "JScrollPane",
+        "JSplitPane",
+        "JOptionPane",
+        "JComboBox",
+        "JListBox",
+        "Textcomponents",
+        "JMenu",
+        "JToolbar",
+        "JDialog",
+        "JTable",
+        "Databaseconnectivity"
+      ]
+    },
+    {
+      "unit": 5,
+      "name": "Web development",
+      "topics": [
+        "The Applet class",
+        "Applet Architecture",
+        "Applet skeleton",
+        "HTML APPLET Tag",
+        "Passing parameter to Applet",
+        "getDocumentBase()",
+        "getCodeBase()",
+        "Applet Context",
+        "showDocument()",
+        "Servlet Architecture",
+        "Servlet interface",
+        "Servlet Request/Response interface",
+        "Servlet designing",
+        "using cookies",
+        "session management"
+      ]
+    }
+  ]
+}

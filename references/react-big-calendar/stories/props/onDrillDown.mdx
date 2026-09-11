@@ -1,0 +1,10 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import * as Stories from './onDrillDown.stories'
+
+# onDrillDown
+
+<Canvas of={Stories.OnDrillDown} meta={Stories} />
+
+- type: `function (date: Date) => // do something`
+
+Callback fired when date header, or the truncated event links are clicked. When included, it will override the default drilldown behavior.

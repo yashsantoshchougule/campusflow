@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import * as Stories from './titleAccessor.stories'
+
+# titleAccessor
+
+- type: `string | function (event: Object) => string`
+- default: 'title'
+
+Accessor for the event title, used to display event information. Should resolve to a `renderable` value.
+
+<Canvas of={Stories.TitleAccessor} meta={Stories} />

@@ -1,0 +1,17 @@
+.auth-page { min-height: 100svh; display: grid; place-items: center; padding: 24px; color: #17172a; background: #f7f8fc; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.auth-page .auth-card { width: min(100%, 560px); background: #fff; border: 1px solid #dce3f0; border-radius: 18px; padding: 32px; box-shadow: 0 20px 50px #10244a12; }
+.auth-page .brand { display: inline-block; color: #1b5dd8; font-weight: 800; letter-spacing: -.04em; text-decoration: none; font-size: 1.25rem; }
+.auth-page .muted { color: #5d6b82; }.auth-page h1, .auth-page p { margin: 0; }.auth-page p { color: #5d6b82; font-size: 14px; line-height: 1.7; }
+.auth-page .form-stack { display: grid; gap: 16px; margin-top: 24px; }
+.auth-page .form-stack label { display: grid; gap: 7px; color: #25344d; font-weight: 600; }
+.auth-page .form-stack input { font: inherit; color: #17233a; background: #fff; border: 1px solid #b9c5d8; border-radius: 9px; padding: 11px; }
+.auth-page .form-stack input:focus { outline: 3px solid #1b5dd833; border-color: #1b5dd8; }
+.auth-page .password-field { display: flex; }.auth-page .password-field input { flex: 1; border-radius: 9px 0 0 9px; }
+.auth-page button { font: inherit; font-weight: 700; background: #1b5dd8; color: #fff; border: 0; border-radius: 9px; padding: 12px 16px; cursor: pointer; }
+.auth-page .text-button { border-radius: 0 9px 9px 0; background: #eef3ff; color: #1b5dd8; padding: 0 12px; }
+.auth-page .checkbox { grid-template-columns: auto 1fr; align-items: center; font-weight: 400; }.auth-page .checkbox input { margin: 0; }
+.auth-page .form-links { display: flex; gap: 16px; justify-content: space-between; flex-wrap: wrap; margin-top: 20px; }.auth-page .form-links a { color: #1b5dd8; }
+.auth-page .notice { padding: 11px; border-radius: 9px; margin: 0; }.auth-page .notice.error { background: #fff0f0; color: #9c1f1f; }.auth-page .notice.success { background: #ecfdf3; color: #146c43; }
+.auth-page button:disabled { opacity: .65; cursor: wait; }.auth-page .secondary { background: #eef3ff; color: #1b5dd8; border: 1px solid #bfd0f4; margin-top: 16px; }
+.auth-page button:focus-visible, .auth-page a:focus-visible, .auth-page input:focus-visible { outline: 3px solid #6d5bd0; outline-offset: 4px; }
+@media (max-width: 560px) { .auth-page { padding: 12px; }.auth-page .auth-card { padding: 24px 20px; border-radius: 12px; } }

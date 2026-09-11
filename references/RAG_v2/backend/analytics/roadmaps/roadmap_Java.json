@@ -1,0 +1,274 @@
+{
+  "id": "roadmap_Java_202606191909",
+  "subject": "Java",
+  "scope": "unit",
+  "unit_number": 1,
+  "hours_per_day": 2,
+  "target_date": "2026-06-20",
+  "created": "2026-06-19 19:09",
+  "status": "active",
+  "weeks": [
+    {
+      "week": 1,
+      "start_date": "2026-06-19",
+      "end_date": "2026-06-25",
+      "topics": [
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "Features of Java",
+            "hours": 2,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "Byte-code",
+            "hours": 2,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "JVM",
+            "hours": 2,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "data types",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "variables and arrays",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "control statements",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "Introduction to Java class and object",
+            "hours": 2,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "start_date": "2026-06-26",
+      "end_date": "2026-07-02",
+      "topics": [
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "main() function",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "garbage collection and finalize() method",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "this",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "inheritance",
+            "hours": 2,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "method overriding",
+            "hours": 2,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "dynamic method dispatching",
+            "hours": 2,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "super",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "start_date": "2026-07-03",
+      "end_date": "2026-07-09",
+      "topics": [
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "final",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "package",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "interface",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "abstract class",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "class path",
+            "hours": 1,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        },
+        {
+          "unit": 1,
+          "unit_name": "Overview of Java",
+          "topic": {
+            "name": "String and String Buffer Class",
+            "hours": 2,
+            "is_weak": false,
+            "days_needed": 1,
+            "status": "not_started",
+            "completed_date": null
+          }
+        }
+      ]
+    }
+  ],
+  "weak_topics": []
+}

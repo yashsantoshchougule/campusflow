@@ -1,0 +1,12 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './length.stories'
+
+# length
+
+- type: `number`
+- default: `30`
+
+Determines the end date from date prop in the agenda view date prop + length (in number of days) = end date.
+
+<Canvas of={Stories.Length} meta={Stories} />

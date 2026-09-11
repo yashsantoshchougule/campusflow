@@ -64,7 +64,7 @@ A complete productivity suite for students with AI-powered document processing, 
 ### 🤖 AI-Powered Tools
 - **Pen2PDF**: Extract text from PDFs, PowerPoints, and images using AI
 - **Notes Generator**: AI-generated structured study notes from documents
-- **Isabella AI Assistant**: Intelligent chatbot with RAG (Retrieval Augmented Generation)
+- **Isabella AI Assistant**: Intelligent chatbot with selected-note context
 - Multiple AI models supported: Gemini, LongCat, GitHub Models (GPT-4, Claude, Llama, etc.)
 
 ### 📚 Organization
@@ -84,7 +84,7 @@ A complete productivity suite for students with AI-powered document processing, 
 ### Prerequisites
 - Python 3.10+
 - Node.js 18+
-- MongoDB (local or Atlas)
+- Access to the configured Supabase project
 
 ### Backend Setup
 
@@ -114,19 +114,15 @@ cp .env.example .env
 ```
 
 Required API keys:
+- `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`: already configured for `campusflow`
 - `GEMINI_API_KEY`: Google Gemini API key
 - `LONGCAT_API_KEY`: LongCat API key (optional)
 - `GITHUB_TOKEN`: GitHub Personal Access Token for GitHub Models (optional)
-- `MONGODB_URL`: MongoDB connection string
 
 5. Start the backend server:
 ```bash
 # From the backend directory
-./run.sh
-
-# Or manually:
-cd ..
-python -m uvicorn backend.main:app --host 0.0.0.0 --port 8003 --reload
+python -m uvicorn main:app --host 0.0.0.0 --port 8003 --reload
 ```
 
 Server will be available at: `http://localhost:8003`
@@ -143,7 +139,7 @@ cd /path/to/StudyBuddy
 npm install
 ```
 
-3. Start development server:
+3. Copy `.env.example` to `.env.local` if it is missing, then start the development server:
 ```bash
 npm run dev
 ```
@@ -166,9 +162,8 @@ Frontend will be available at: `http://localhost:5173`
 
 ### AI Assistant (Isabella)
 - Ask questions about your notes
-- RAG system automatically searches your document library
 - Add specific notes as context
-- Get answers with source citations
+- Keep conversation history in Supabase
 
 ### Timetable
 - Add classes manually or import from CSV
@@ -188,12 +183,9 @@ Frontend will be available at: `http://localhost:5173`
 StudyBuddy/
 ├── backend/
 │   ├── app/
-│   │   ├── models/        # Database schemas
 │   │   ├── routes/        # API endpoints
-│   │   ├── services/      # AI & RAG services
+│   │   ├── services/      # AI and export services
 │   │   └── utils/         # Helper functions
-│   ├── data/              # RAG document storage
-│   ├── vector_store/      # FAISS index
 │   └── main.py            # FastAPI app
 ├── src/
 │   ├── components/        # React components
@@ -211,7 +203,7 @@ StudyBuddy/
 <p align="left">
   <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB">
+  <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase">
   <img src="https://img.shields.io/badge/Uvicorn-009688?style=for-the-badge&logo=gunicorn&logoColor=white" alt="Uvicorn">
 </p>
 
@@ -219,11 +211,9 @@ StudyBuddy/
   <img src="https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini">
   <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI">
   <img src="https://img.shields.io/badge/Anthropic-191919?style=for-the-badge&logo=anthropic&logoColor=white" alt="Anthropic">
-  <img src="https://img.shields.io/badge/LangChain-121212?style=for-the-badge&logo=chainlink&logoColor=white" alt="LangChain">
 </p>
 
 <p align="left">
-  <img src="https://img.shields.io/badge/FAISS-0467DF?style=for-the-badge&logo=meta&logoColor=white" alt="FAISS">
   <img src="https://img.shields.io/badge/Sentence_Transformers-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="Sentence Transformers">
   <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" alt="Pandas">
   <img src="https://img.shields.io/badge/Pillow-EE4C2C?style=for-the-badge&logo=python&logoColor=white" alt="Pillow">
@@ -235,9 +225,9 @@ StudyBuddy/
 - **Python-multipart**: Form and file upload handling
 
 **Database:**
-- **MongoDB**: NoSQL database for flexible document storage
-- **Motor**: Async MongoDB driver for Python
-- **PyMongo**: Official MongoDB Python driver
+- **Supabase Postgres**: user-owned app data protected by Row Level Security
+- **Supabase Auth**: email/password sessions
+- **Supabase Storage**: private academic document uploads
 
 **AI & Machine Learning:**
 - **Google Generative AI**: Gemini models for text and multimodal processing
@@ -245,16 +235,10 @@ StudyBuddy/
 - **Anthropic**: Claude models via GitHub Models
 - **LongCat**: Fast text generation models
 
-**RAG (Retrieval Augmented Generation):**
-- **FAISS**: Facebook AI Similarity Search for efficient vector retrieval
-- **Sentence Transformers**: State-of-the-art text embeddings
-- **LangChain**: Framework for developing LLM applications
-
 **File Processing:**
 - **PyPDF2 & pypdf**: PDF parsing and text extraction
 - **python-docx**: Word document processing
 - **python-pptx**: PowerPoint file handling
-- **openpyxl**: Excel file processing
 - **Pillow**: Image processing and manipulation
 
 **Text & Export:**
@@ -328,8 +312,7 @@ StudyBuddy/
 
 **Database:**
 <p align="left">
-  <img src="https://img.shields.io/pypi/v/motor?style=for-the-badge&label=motor&logo=mongodb&color=47A248" alt="Motor">
-  <img src="https://img.shields.io/pypi/v/pymongo?style=for-the-badge&label=pymongo&logo=mongodb&color=47A248" alt="PyMongo">
+  <img src="https://img.shields.io/badge/Supabase-Postgres%20%7C%20Auth%20%7C%20Storage-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase">
 </p>
 
 **File Processing:**
@@ -341,8 +324,6 @@ StudyBuddy/
 </p>
 
 <p align="left">
-  <img src="https://img.shields.io/pypi/v/openpyxl?style=for-the-badge&label=openpyxl&color=green" alt="openpyxl">
-  <img src="https://img.shields.io/pypi/v/pandas?style=for-the-badge&label=pandas&logo=pandas&color=150458" alt="pandas">
   <img src="https://img.shields.io/pypi/v/Pillow?style=for-the-badge&label=Pillow&color=yellow" alt="Pillow">
 </p>
 
@@ -351,14 +332,6 @@ StudyBuddy/
   <img src="https://img.shields.io/pypi/v/google-generativeai?style=for-the-badge&label=google-generativeai&logo=google&color=4285F4" alt="Google Generative AI">
   <img src="https://img.shields.io/pypi/v/openai?style=for-the-badge&label=openai&logo=openai&color=412991" alt="OpenAI">
   <img src="https://img.shields.io/pypi/v/anthropic?style=for-the-badge&label=anthropic&color=191919" alt="Anthropic">
-</p>
-
-**RAG & Embeddings:**
-<p align="left">
-  <img src="https://img.shields.io/pypi/v/faiss-cpu?style=for-the-badge&label=faiss-cpu&logo=meta&color=0467DF" alt="FAISS CPU">
-  <img src="https://img.shields.io/pypi/v/sentence-transformers?style=for-the-badge&label=sentence-transformers&logo=pytorch&color=EE4C2C" alt="Sentence Transformers">
-  <img src="https://img.shields.io/pypi/v/langchain?style=for-the-badge&label=langchain&color=121212" alt="LangChain">
-  <img src="https://img.shields.io/pypi/v/langchain-community?style=for-the-badge&label=langchain-community&color=121212" alt="LangChain Community">
 </p>
 
 **Text Processing & Export:**
@@ -393,6 +366,7 @@ StudyBuddy/
 
 <p align="left">
   <img src="https://img.shields.io/npm/v/axios?style=for-the-badge&label=axios&logo=axios&color=5A29E4" alt="Axios">
+  <img src="https://img.shields.io/npm/v/@supabase/supabase-js?style=for-the-badge&label=supabase-js&logo=supabase&color=3FCF8E" alt="Supabase JS">
   <img src="https://img.shields.io/npm/v/react-markdown?style=for-the-badge&label=react-markdown&color=000000" alt="React Markdown">
   <img src="https://img.shields.io/npm/v/katex?style=for-the-badge&label=katex&color=008080" alt="KaTeX">
   <img src="https://img.shields.io/npm/v/react-katex?style=for-the-badge&label=react-katex&color=008080" alt="React KaTeX">
@@ -434,31 +408,23 @@ Once the backend is running, visit:
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/folders` | GET, POST, PUT, DELETE | Folder management |
-| `/api/notes` | GET, POST, PUT, DELETE | Notes CRUD |
 | `/api/notes/generate` | POST | Generate notes with AI |
-| `/api/timetable` | GET, POST, PUT, DELETE | Timetable management |
 | `/api/timetable/import` | POST | Import from CSV |
-| `/api/todos` | GET, POST, PUT, DELETE | Todo management |
 | `/api/assistant/chat` | POST | Chat with AI assistant |
 | `/api/pen2pdf/extract` | POST | Extract text from documents |
 | `/api/pen2pdf/export` | POST | Export to PDF/DOCX/MD |
 
 ## 🎯 RAG System
 
-The RAG (Retrieval Augmented Generation) system:
-1. Monitors `backend/data/` for documents
-2. Automatically indexes new files on startup
-3. Saves notes as `.txt` files for indexing
-4. Uses FAISS for vector search
-5. Integrates with AI Assistant for context-aware responses
+The AI Assistant can use the signed-in user's selected Supabase notes as context.
 
 ## 🔐 Security Considerations
 
 - API keys stored in `.env` (not committed)
-- CORS configured for local development
+- FastAPI AI/file routes require a valid Supabase access token
+- Postgres and Storage access is isolated per user with RLS
+- CORS is restricted to the configured frontend URL
 - Input validation on all endpoints
-- MongoDB connection with authentication support
 
 For detailed security information and vulnerability reporting, see [SECURITY.md](SECURITY.md).
 
@@ -497,16 +463,15 @@ For information about reporting security vulnerabilities, please see our [Securi
 
 ## 🐛 Known Issues
 
-- Large file uploads (>50MB) may timeout
+- File uploads are limited to 10 MB
 - Some AI models require specific API access
-- MongoDB must be running for backend to start
 
 ## 💡 Tips
 
 - Use Gemini models for document processing (supports images/PDFs)
 - LongCat models are fast for text-only tasks
 - Pin frequently used todos for quick access
-- Organize notes into subject folders for better RAG results
+- Select notes in Isabella when you want them used as answer context
 
 ---
 

@@ -1,8 +1,6 @@
 import os
 import base64
-import numpy as np
-from typing import List
-from mistralai import Mistral
+from mistralai.client import Mistral
 from app.config import settings
 from app.utils.logger import get_logger
 
@@ -16,42 +14,8 @@ class MistralService:
             self.client = Mistral(api_key=self.api_key)
         else:
             self.client = None
-            logger.warning("MISTRAL_API_KEY not set — Mistral services will be unavailable")
+            logger.warning("MISTRAL_API_KEY not set; Mistral services will be unavailable")
 
-    # ------------------------------------------------------------------ #
-    #  Embeddings (for RAG)
-    # ------------------------------------------------------------------ #
-    async def get_embeddings(self, texts: List[str]) -> np.ndarray:
-        """Generate embeddings using mistral-embed-2312.
-
-        Args:
-            texts: List of text strings to embed.
-
-        Returns:
-            numpy array of shape (len(texts), 1024).
-        """
-        if not self.client:
-            raise RuntimeError("Mistral client not initialised (missing API key)")
-
-        # Mistral embed API accepts up to ~16 k tokens per batch.
-        # We chunk into batches of 25 to stay well within limits.
-        BATCH_SIZE = 25
-        all_embeddings = []
-
-        for i in range(0, len(texts), BATCH_SIZE):
-            batch = texts[i : i + BATCH_SIZE]
-            response = self.client.embeddings.create(
-                model="mistral-embed-2312",
-                inputs=batch,
-            )
-            batch_embeddings = [item.embedding for item in response.data]
-            all_embeddings.extend(batch_embeddings)
-
-        return np.array(all_embeddings, dtype="float32")
-
-    # ------------------------------------------------------------------ #
-    #  OCR (for notes / pen2pdf)
-    # ------------------------------------------------------------------ #
     def ocr_extract(self, file_path: str) -> str:
         """Extract text from a file (PDF or image) using Mistral OCR.
 

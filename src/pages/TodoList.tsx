@@ -22,7 +22,7 @@ const TodoList = () => {
     description: '',
     due_date: '',
   });
-  const [newSubtask, setNewSubtask] = useState<{ [key: number]: string }>({});
+  const [newSubtask, setNewSubtask] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadTodos();
@@ -74,7 +74,7 @@ const TodoList = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     const todoToDelete = todos.find(t => t.id === id);
     if (todoToDelete) {
       setDeletingTodo(todoToDelete);
@@ -111,7 +111,7 @@ const TodoList = () => {
     }
   };
 
-  const handleAddSubtask = async (todoId: number) => {
+  const handleAddSubtask = async (todoId: string) => {
     const title = newSubtask[todoId]?.trim();
     if (!title) return;
     
@@ -124,7 +124,7 @@ const TodoList = () => {
     }
   };
 
-  const toggleSubtask = async (todoId: number, subtaskId: number, completed: boolean) => {
+  const toggleSubtask = async (todoId: string, subtaskId: string, completed: boolean) => {
     try {
       await updateSubtask(todoId, subtaskId, { completed: !completed });
       loadTodos();
@@ -133,7 +133,7 @@ const TodoList = () => {
     }
   };
 
-  const handleDeleteSubtask = async (todoId: number, subtaskId: number) => {
+  const handleDeleteSubtask = async (todoId: string, subtaskId: string) => {
     try {
       await deleteSubtask(todoId, subtaskId);
       loadTodos();

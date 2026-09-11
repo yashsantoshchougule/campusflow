@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './formatsDayFormat.stories'
+
+# formats.dayFormat
+
+- type: `function (date: Date, culture: ?string, localizer: DateLocalizer) => string`
+
+A day of the week format for Week and Day headings, e.g. "Wed 01/04"
+
+<Canvas of={Stories.FormatsDayFormat} meta={Stories} />

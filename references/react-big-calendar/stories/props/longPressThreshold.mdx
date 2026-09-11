@@ -1,0 +1,12 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './longPressThreshold.stories'
+
+# longPressThreshold
+
+- type: `number`
+- default: `250`
+
+Specifies the number of miliseconds the user must press and hold on the screen for a touch to be considered a "long press." Long presses are used for time slot selection on touch devices.
+
+<Canvas of={Stories.LongPressThreshold} meta={Stories} />

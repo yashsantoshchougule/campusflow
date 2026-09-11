@@ -1,23 +1,31 @@
 import { Link, useLocation } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import './Navbar.css';
 
 const Navbar = () => {
   const location = useLocation();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: '🏠' },
-    { path: '/pen2pdf', label: 'Pen2PDF', icon: '📝' },
+    { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
+    { path: '/academics', label: 'Academics', icon: '🎓' },
+    { path: '/attendance', label: 'Attendance', icon: '📊' },
+    { path: '/study-ai', label: 'Study AI', icon: '🧠' },
+    { path: '/notices', label: 'Notices', icon: '📢' },
+    { path: '/calendar', label: 'Calendar', icon: '🗓️' },
     { path: '/notes-library', label: 'Notes', icon: '📚' },
     { path: '/notes-generator', label: 'Generate', icon: '✨' },
-    { path: '/timetable', label: 'Timetable', icon: '📅' },
     { path: '/todos', label: 'Todos', icon: '✓' },
-    { path: '/assistant', label: 'Isabella', icon: '🤖' },
+    { path: '/notifications', label: 'Notifications', icon: '🔔' },
+    { path: '/profile', label: 'Profile', icon: '👤' },
+    { path: '/settings', label: 'Settings', icon: '⚙️' },
+    { path: '/portal', label: 'Portal', icon: '🏫' },
+    { path: '/timetable', label: 'Timetable', icon: '📅' },
   ];
 
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <h2>StudyBuddy</h2>
+        <h2>CampusFlow</h2>
       </div>
       <div className="navbar-links">
         {navItems.map((item) => (
@@ -31,6 +39,7 @@ const Navbar = () => {
           </Link>
         ))}
       </div>
+      <button className="sign-out-button" onClick={() => supabase.auth.signOut()}>Sign out</button>
     </nav>
   );
 };

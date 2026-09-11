@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './formatsEventTimeRangeEndFormat.stories'
+
+# formats.eventTimeRangeEndFormat
+
+- type: `function (date: Date, culture: ?string, localizer: DateLocalizer) => string`
+
+An optional event time range for events that continue onto another day. Used with <LinkTo kind="props" story="show-multi-day-times">showMultiDayTimes</LinkTo>.
+
+<Canvas of={Stories.FormatsEventTimeRangeEndFormat} meta={Stories} />

@@ -1,0 +1,30 @@
+.account-page { max-width: 1050px; margin: 0 auto; padding: 1rem; color: #172033; }
+.account-page button, .account-page input, .account-page select, .account-page textarea { font: inherit; }
+.account-card { margin: 1rem 0; padding: 1rem; border: 1px solid #dbe2ea; border-radius: .7rem; background: white; }
+.account-card h2 { margin-top: 0; }
+.account-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.account-page label { display: grid; gap: .3rem; margin: .45rem 0; }
+.account-page input, .account-page select, .account-page textarea { min-width: 0; padding: .5rem; border: 1px solid #cbd5e1; border-radius: .4rem; background: inherit; color: inherit; }
+.account-page select[multiple] { min-height: 7rem; }
+.account-toolbar, .account-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; margin: .75rem 0; }
+.account-page button, .account-page .account-actions a, .account-page button.primary { padding: .5rem .75rem; border: 1px solid #cbd5e1; border-radius: .4rem; background: white; color: #172033; cursor: pointer; text-decoration: none; }
+.account-page button.active, .account-page button.primary { background: #1d4ed8; border-color: #1d4ed8; color: white; }
+.account-page button:disabled { opacity: .5; cursor: not-allowed; }
+.account-page .danger { color: #b91c1c; border-color: #fecaca; }
+.danger-zone { border-color: #fecaca; }
+.account-message { padding: .65rem; background: #ecfeff; border-radius: .4rem; }
+.account-empty { color: #64748b; }
+.notification-list article, .document-list article { display: flex; justify-content: space-between; gap: 1rem; padding: .9rem; margin: .6rem 0; border: 1px solid #e2e8f0; border-radius: .55rem; }
+.notification-list article.unread { border-left: 5px solid #2563eb; }
+.notification-list h2 { margin: .35rem 0; font-size: 1.05rem; }
+.priority { display: inline-block; padding: .15rem .4rem; margin-right: .5rem; border-radius: 999px; background: #e2e8f0; text-transform: capitalize; }
+.priority.urgent { background: #fee2e2; color: #991b1b; }.priority.important { background: #fef3c7; color: #92400e; }
+.profile-avatar { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; margin-bottom: 1rem; }
+.profile-avatar img, .profile-avatar span { width: 6rem; height: 6rem; border-radius: 50%; object-fit: cover; display: grid; place-items: center; border: 1px solid #cbd5e1; }
+.check { display: flex !important; grid-template-columns: auto 1fr; align-items: center; }
+.check input { min-width: auto; }
+.account-suggestion { padding: .8rem; background: #f8fafc; border-radius: .5rem; }
+html[data-theme='dark'] .account-page { color: #e2e8f0; } html[data-theme='dark'] .account-card { background: #111827; border-color: #374151; } html[data-theme='dark'] .account-page button { background: #1f2937; color: #e2e8f0; }
+@media (prefers-color-scheme: dark) { html[data-theme='system'] .account-page { color: #e2e8f0; } html[data-theme='system'] .account-card { background: #111827; border-color: #374151; } }
+@media (max-width: 700px) { .account-grid { grid-template-columns: 1fr; } .notification-list article, .document-list article { flex-direction: column; } }
+

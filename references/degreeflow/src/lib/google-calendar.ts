@@ -1,0 +1,282 @@
+// Client-side Google Calendar helpers.
+// Tokens and the synced-event map live in Supabase (per-user) so the
+// connection follows the account across browsers/devices and resets on logout.
+// Only the short-lived CSRF state stays in localStorage (single-tab flow).
+
+import { refreshGoogleAccessToken } from "./google-calendar.functions";
+import { supabase } from "@/integrations/supabase/client";
+import type { StudyBlock } from "./types";
+
+const STATE_KEY = "degreeflow.google.oauth_state";
+
+export const GOOGLE_SCOPES = "https://www.googleapis.com/auth/calendar.events";
+
+export interface GoogleTokens {
+  access_token: string;
+  refresh_token: string | null;
+  expires_at: number; // epoch ms
+  email?: string | null;
+}
+
+async function currentUserId(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.user?.id ?? null;
+}
+
+async function readRow(): Promise<{ tokens: GoogleTokens | null; synced: Record<string, string> }> {
+  const uid = await currentUserId();
+  if (!uid) return { tokens: null, synced: {} };
+  const { data, error } = await supabase
+    .from("user_google_calendar")
+    .select("tokens, synced")
+    .eq("user_id", uid)
+    .maybeSingle();
+  if (error || !data) return { tokens: null, synced: {} };
+  return {
+    tokens: (data.tokens as GoogleTokens | null) ?? null,
+    synced: (data.synced as Record<string, string> | null) ?? {},
+  };
+}
+
+async function writeRow(patch: { tokens?: GoogleTokens | null; synced?: Record<string, string> }) {
+  const uid = await currentUserId();
+  if (!uid) throw new Error("You must be signed in to connect Google Calendar.");
+  const current = await readRow();
+  const next = {
+    user_id: uid,
+    tokens: patch.tokens !== undefined ? patch.tokens : current.tokens,
+    synced: patch.synced !== undefined ? patch.synced : current.synced,
+  };
+  const { error } = await supabase
+    .from("user_google_calendar")
+    .upsert(next as never, { onConflict: "user_id" });
+  if (error) throw new Error(error.message);
+}
+
+export async function loadTokens(): Promise<GoogleTokens | null> {
+  return (await readRow()).tokens;
+}
+
+export async function saveTokens(t: GoogleTokens): Promise<void> {
+  await writeRow({ tokens: t });
+}
+
+export async function clearTokens(): Promise<void> {
+  await writeRow({ tokens: null, synced: {} });
+}
+
+export async function loadSyncedMap(): Promise<Record<string, string>> {
+  return (await readRow()).synced;
+}
+
+async function saveSyncedMap(m: Record<string, string>) {
+  await writeRow({ synced: m });
+}
+
+export function buildAuthUrl(clientId: string, redirectUri: string): string {
+  const state = crypto.randomUUID();
+  localStorage.setItem(STATE_KEY, state);
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: "code",
+    scope: GOOGLE_SCOPES,
+    access_type: "offline",
+    prompt: "consent",
+    include_granted_scopes: "true",
+    state,
+  });
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+}
+
+export function consumeAndVerifyState(returned: string | null): boolean {
+  const expected = localStorage.getItem(STATE_KEY);
+  localStorage.removeItem(STATE_KEY);
+  return !!expected && expected === returned;
+}
+
+export function redirectUri(): string {
+  return `${window.location.origin}/oauth/google/callback`;
+}
+
+async function ensureFreshAccessToken(): Promise<string> {
+  const t = await loadTokens();
+  if (!t) throw new Error("Not connected to Google Calendar.");
+  if (Date.now() < t.expires_at - 60_000) return t.access_token;
+  if (!t.refresh_token) throw new Error("Session expired. Please reconnect Google Calendar.");
+  const res = await refreshGoogleAccessToken({ data: { refreshToken: t.refresh_token } });
+  if (!res.ok) {
+    await clearTokens();
+    throw new Error(res.error || "Failed to refresh Google access token.");
+  }
+  const next: GoogleTokens = {
+    ...t,
+    access_token: res.access_token,
+    expires_at: Date.now() + res.expires_in * 1000,
+  };
+  await saveTokens(next);
+  return res.access_token;
+}
+
+function toRFC3339Local(date: string, hhmm: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const [hh, mm] = hhmm.split(":").map(Number);
+  const dt = new Date(y, m - 1, d, hh, mm, 0, 0);
+  const tzOffMin = -dt.getTimezoneOffset();
+  const sign = tzOffMin >= 0 ? "+" : "-";
+  const abs = Math.abs(tzOffMin);
+  const offH = String(Math.floor(abs / 60)).padStart(2, "0");
+  const offM = String(abs % 60).padStart(2, "0");
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${y}-${pad(m)}-${pad(d)}T${pad(hh)}:${pad(mm)}:00${sign}${offH}:${offM}`;
+}
+
+function eventBodyForBlock(block: StudyBlock) {
+  const description = [
+    `Method: ${block.method}`,
+    `Priority: ${block.priority}`,
+    block.reason ? `Why: ${block.reason}` : null,
+    "",
+    "Generated by DegreeFlow",
+  ].filter(Boolean).join("\n");
+
+  const colorId =
+    block.priority === "Critical" ? "11" :
+    block.kind === "Project" ? "9" :
+    block.kind === "Exercise" ? "10" :
+    block.kind === "Prep" ? "6" :
+    block.kind === "Review" ? "7" :
+    "5";
+
+  return {
+    summary: `${block.examName} — ${block.taskTitle}`,
+    description,
+    colorId,
+    start: { dateTime: toRFC3339Local(block.date, block.start) },
+    end: { dateTime: toRFC3339Local(block.date, block.end) },
+    extendedProperties: {
+      private: {
+        degreeflow_block_id: block.id,
+        degreeflow_exam_id: block.examId,
+      },
+    },
+  };
+}
+
+async function googleFetch(path: string, init: RequestInit): Promise<Response> {
+  const token = await ensureFreshAccessToken();
+  const headers = new Headers(init.headers);
+  headers.set("Authorization", `Bearer ${token}`);
+  headers.set("Content-Type", "application/json");
+  return fetch(`https://www.googleapis.com/calendar/v3${path}`, { ...init, headers });
+}
+
+export interface SyncResult {
+  created: number;
+  updated: number;
+  failed: number;
+  errors: string[];
+}
+
+export async function syncStudyBlocks(blocks: StudyBlock[]): Promise<SyncResult> {
+  const synced = await loadSyncedMap();
+  const result: SyncResult = { created: 0, updated: 0, failed: 0, errors: [] };
+
+  for (const block of blocks) {
+    try {
+      const body = eventBodyForBlock(block);
+      const existingId = synced[block.id];
+
+      let res: Response;
+      if (existingId) {
+        res = await googleFetch(`/calendars/primary/events/${encodeURIComponent(existingId)}`, {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        });
+        if (res.status === 404) {
+          res = await googleFetch(`/calendars/primary/events`, {
+            method: "POST",
+            body: JSON.stringify(body),
+          });
+          if (res.ok) result.created += 1;
+        } else if (res.ok) {
+          result.updated += 1;
+        }
+      } else {
+        res = await googleFetch(`/calendars/primary/events`, {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
+        if (res.ok) result.created += 1;
+      }
+
+      if (!res.ok) {
+        result.failed += 1;
+        const text = await res.text();
+        result.errors.push(`${block.taskTitle}: ${res.status} ${text.slice(0, 120)}`);
+        continue;
+      }
+      const json = await res.json() as { id?: string };
+      if (json.id) {
+        synced[block.id] = json.id;
+      }
+    } catch (err) {
+      result.failed += 1;
+      result.errors.push(`${block.taskTitle}: ${(err as Error).message}`);
+    }
+  }
+
+  await saveSyncedMap(synced);
+  return result;
+}
+
+export async function syncExamDeadlines(
+  exams: { examId: string; examName: string; chosenDate: string }[],
+): Promise<SyncResult> {
+  const synced = await loadSyncedMap();
+  const result: SyncResult = { created: 0, updated: 0, failed: 0, errors: [] };
+
+  for (const ex of exams) {
+    const key = `exam:${ex.examId}:${ex.chosenDate.slice(0, 10)}`;
+    const date = ex.chosenDate.slice(0, 10);
+    const body = {
+      summary: `Exam: ${ex.examName}`,
+      description: "DegreeFlow exam deadline",
+      start: { date },
+      end: { date },
+      colorId: "11",
+      extendedProperties: { private: { degreeflow_block_id: key } },
+    };
+    try {
+      const existingId = synced[key];
+      let res: Response;
+      if (existingId) {
+        res = await googleFetch(`/calendars/primary/events/${encodeURIComponent(existingId)}`, {
+          method: "PATCH",
+          body: JSON.stringify(body),
+        });
+        if (res.status === 404) {
+          res = await googleFetch(`/calendars/primary/events`, { method: "POST", body: JSON.stringify(body) });
+          if (res.ok) result.created += 1;
+        } else if (res.ok) result.updated += 1;
+      } else {
+        res = await googleFetch(`/calendars/primary/events`, { method: "POST", body: JSON.stringify(body) });
+        if (res.ok) result.created += 1;
+      }
+      if (!res.ok) {
+        result.failed += 1;
+        const text = await res.text();
+        result.errors.push(`${ex.examName}: ${res.status} ${text.slice(0, 120)}`);
+        continue;
+      }
+      const json = await res.json() as { id?: string };
+      if (json.id) synced[key] = json.id;
+    } catch (err) {
+      result.failed += 1;
+      result.errors.push(`${ex.examName}: ${(err as Error).message}`);
+    }
+  }
+
+  await saveSyncedMap(synced);
+  return result;
+}

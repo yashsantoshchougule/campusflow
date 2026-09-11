@@ -1,0 +1,85 @@
+{
+  "subject": "AI",
+  "units": [
+    {
+      "unit": 1,
+      "name": "General Overview of AI & Search Techniques",
+      "topics": [
+        "introduction to ai",
+        "state space representation",
+        "problem characteristics",
+        "production systems",
+        "depth first search",
+        "breadth first search",
+        "hill climbing",
+        "branch and bound",
+        "best first search",
+        "constraint satisfaction"
+      ]
+    },
+    {
+      "unit": 2,
+      "name": "Heuristic Search & Knowledge Representation",
+      "topics": [
+        "a star algorithm",
+        "and or graph",
+        "ao star algorithm",
+        "minimax search",
+        "alpha beta cutoff",
+        "first order predicate calculus",
+        "skolemnisation",
+        "resolution principle",
+        "semantic networks",
+        "frame systems"
+      ]
+    },
+    {
+      "unit": 3,
+      "name": "NLP Planning and Uncertainty",
+      "topics": [
+        "phases of nlp",
+        "recursive transition nets",
+        "augmented transition nets",
+        "goal stack planning",
+        "non linear planning",
+        "probabilistic reasoning",
+        "probability theory",
+        "bayes theorem",
+        "bayesian network",
+        "uncertainty"
+      ]
+    },
+    {
+      "unit": 4,
+      "name": "Machine Learning Paradigms",
+      "topics": [
+        "supervised learning",
+        "unsupervised learning",
+        "reinforcement learning",
+        "decision trees",
+        "clustering",
+        "k means clustering",
+        "fuzzy c means",
+        "hierarchical clustering",
+        "artificial neural networks",
+        "inductive learning"
+      ]
+    },
+    {
+      "unit": 5,
+      "name": "Expert Systems and Applications",
+      "topics": [
+        "expert systems introduction",
+        "expert system architecture",
+        "rule based expert system",
+        "forward chaining",
+        "expert system shells",
+        "knowledge acquisition",
+        "mycin case study",
+        "backward chaining",
+        "knowledge base",
+        "inference engine"
+      ]
+    }
+  ]
+}

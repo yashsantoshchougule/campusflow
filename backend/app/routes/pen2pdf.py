@@ -1,96 +1,52 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 from typing import List
-from mistralai import Mistral
 import os
-import shutil
-import base64
+import tempfile
+from pathlib import Path
 from app.utils.file_processor import extract_text_from_file
 from app.utils.logger import get_logger
-from dotenv import load_dotenv
 from app.services.export_service import export_service
+from app.services.mistral_service import mistral_service
 
-load_dotenv()  # Load environment variables from .env file
-api_key = os.getenv("MISTRAL_API_KEY")
-if not api_key:
-    raise ValueError("MISTRAL_API_KEY is not set in environment variables")
-client = Mistral(api_key=api_key)
 router = APIRouter(prefix="/api/pen2pdf", tags=["pen2pdf"])
 logger = get_logger("PEN2PDF")
-
-# Helper function to encode files to base64
-def encode_file_to_base64(file_path: str) -> str:
-    """Encode a file to base64 string."""
-    with open(file_path, "rb") as file:
-        return base64.b64encode(file.read()).decode('utf-8')
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 # app/routes/pen2pdf.py
 
 @router.post("/extract")
 async def extract_documents(
-    files: List[UploadFile] = File(...),
-    model: str = Form("gemini-2.5-flash")
+    files: List[UploadFile] = File(...)
 ):
-    logger.info(f"Received document extraction request for {len(files)} files using model: {model}")
+    logger.info(f"Received document extraction request for {len(files)} files")
     temp_files = []
+    original_names = {}
     extracted_content = []
     
     try:
-        os.makedirs("backend/uploads", exist_ok=True)
-        logger.debug("Created uploads directory")
-        
-        # Save files
         for file in files:
-            file_path = f"backend/uploads/{file.filename}"
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
+            contents = await file.read()
+            if not contents or len(contents) > MAX_UPLOAD_BYTES:
+                raise HTTPException(status_code=413, detail="Files must be between 1 byte and 10 MB")
+
+            suffix = Path(file.filename or "upload").suffix
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp:
+                temp.write(contents)
+                file_path = temp.name
             temp_files.append(file_path)
-            logger.info(f"Saved file: {file.filename} ({file.size} bytes)" if hasattr(file, 'size') else f"Saved file: {file.filename}")
+            original_names[file_path] = file.filename or "upload"
+            logger.info(f"Saved temporary upload: {Path(file_path).name}")
         
         # Process files
         for file_path in temp_files:
-            filename = os.path.basename(file_path)
+            filename = original_names[file_path]
             ext = os.path.splitext(filename)[1].lower()
             
             if ext in ['.pdf', '.png', '.jpg', '.jpeg', '.webp']:
                 logger.info(f"Processing {filename} with Mistral OCR...")
-                
-                # Encode file to base64
-                base64_file = encode_file_to_base64(file_path)
-                
-                # Determine document type and mime type
-                if ext == '.pdf':
-                    document_type = "document_url"
-                    mime_type = "application/pdf"
-                else:
-                    document_type = "image_url"
-                    # Map extensions to mime types
-                    mime_map = {
-                        '.png': 'image/png',
-                        '.jpg': 'image/jpeg',
-                        '.jpeg': 'image/jpeg',
-                        '.webp': 'image/webp'
-                    }
-                    mime_type = mime_map.get(ext, 'image/jpeg')
-                
-                # Perform OCR
-                try:
-                    ocr_response = client.ocr.process(
-                        model="mistral-ocr-latest",
-                        document={
-                            "type": document_type,
-                            f"{document_type}": f"data:{mime_type};base64,{base64_file}"
-                        },
-                        table_format="html",
-                        include_image_base64=False
-                    )
-                    
-                    # Extract markdown from all pages
-                    text = "\n\n".join([page.markdown for page in ocr_response.pages])
-                    logger.success(f"Successfully extracted text from {filename} using Mistral OCR")
-                except Exception as ocr_error:
-                    logger.error(f"Mistral OCR failed for {filename}: {str(ocr_error)}")
-                    raise
+                text = mistral_service.ocr_extract(file_path)
+                logger.success(f"Successfully extracted text from {filename} using Mistral OCR")
             else:
                 logger.info(f"Processing {filename} with text extraction...")
                 text = await extract_text_from_file(file_path)
@@ -111,9 +67,11 @@ async def extract_documents(
             "files_processed": len(extracted_content)
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Document extraction failed: {str(e)}", exc_info=e)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Document extraction failed") from e
     finally:
         # ALWAYS delete files after processing
         for path in temp_files:

@@ -73,7 +73,7 @@ const Timetable = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     const entryToDelete = entries.find(e => e.id === id);
     if (entryToDelete) {
       setDeletingEntry(entryToDelete);

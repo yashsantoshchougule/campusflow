@@ -1,0 +1,11 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import * as Stories from './allDayMaxRows.stories'
+
+# allDayMaxRows
+
+- type: `number`
+- default: `Infinity`
+
+Determines a maximum amount of rows of events to display in the all day section for Week and Day views, will display `showMore` button if events excede this number.
+
+<Canvas of={Stories.AllDayMaxRows} meta={Stories} />

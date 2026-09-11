@@ -1,0 +1,12 @@
+import { Canvas } from '@storybook/addon-docs/blocks'
+import LinkTo from '@storybook/addon-links/react'
+import * as Stories from './defaultView.stories'
+
+# defaultView
+
+- type: `string`
+- default: `Views.MONTH (month|week|work_week|day|agenda)`
+
+The initial `view` set for your calendar when you don't want it to be the default ('month').
+
+<Canvas of={Stories.DefaultView} meta={Stories} />

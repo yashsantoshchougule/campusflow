@@ -4,7 +4,8 @@
   padding: var(--spacing-md) var(--spacing-xl);
   display: flex;
   align-items: center;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -23,16 +24,20 @@
 .navbar-links {
   display: flex;
   gap: var(--spacing-sm);
-  flex: 1;
+  flex: 1 1 700px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .nav-link {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
+  white-space: nowrap;
   transition: all 0.2s ease;
 }
 
@@ -55,6 +60,17 @@
   font-size: 0.95rem;
 }
 
+.sign-out-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.sign-out-button:hover { border-color: var(--danger); color: var(--danger); }
+
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
@@ -63,6 +79,8 @@
 
   .navbar-links {
     width: 100%;
+    flex-basis: auto;
+    flex-wrap: nowrap;
     overflow-x: auto;
     padding-bottom: var(--spacing-sm);
   }

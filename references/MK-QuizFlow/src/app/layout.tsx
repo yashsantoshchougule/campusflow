@@ -1,0 +1,114 @@
+import type { Metadata } from "next";
+import { AnalyticsScripts } from "@/components/layout/AnalyticsScripts";
+import { ConsentBanner } from "@/components/layout/ConsentBanner";
+import { SiteFooter } from "@/components/layout/SiteFooter";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { ThemeScript } from "@/components/layout/ThemeScript";
+import { VercelAnalytics } from "@/components/layout/VercelAnalytics";
+import { CREATOR, SITE } from "@/lib/site";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE.url),
+  title: {
+    default: `${SITE.name} — PDF & notes to quizzes and flashcards`,
+    template: `%s · ${SITE.name}`,
+  },
+  description: SITE.description,
+  applicationName: SITE.name,
+  authors: [{ name: CREATOR.name, url: CREATOR.portfolio }],
+  creator: CREATOR.name,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    title: `${SITE.name} — PDF & notes to quizzes and flashcards`,
+    description: SITE.description,
+    url: SITE.url,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE.name,
+    description: SITE.description,
+  },
+  robots: { index: true, follow: true },
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": SITE.name,
+    "description": SITE.description,
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "All",
+    "url": SITE.url,
+    "author": {
+      "@type": "Person",
+      "name": CREATOR.name,
+      "url": CREATOR.portfolio,
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0.00",
+      "priceCurrency": "USD",
+    },
+  };
+
+  return (
+    <html lang="en" suppressHydrationWarning className="h-full">
+      <head>
+        <ThemeScript />
+        {/* Cloudflare Web Analytics — cookieless, no PII, no consent required (STANDARDS §6 exemption). Auto-install via CF proxy is unreliable on the Vercel origin, so the beacon is embedded directly. */}
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token":"cba20ffc607c42bba49e40d7f8395657"}'
+        />
+        {/* AEO & SEO Structured JSON-LD Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {/*
+          AdSense loader (STANDARDS §7): loads ONLY when ads are explicitly
+          enabled AND a publisher id is set. Disabled by default, so no ad
+          script touches the page. Analytics (GTM/GA) are handled exclusively by
+          the consent-gated AnalyticsScripts below (STANDARDS §6) — never loaded
+          unconditionally from <head>.
+        */}
+        {process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true" &&
+          process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID && (
+            <script
+              async
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
+              crossOrigin="anonymous"
+            />
+          )}
+      </head>
+      <body className="flex min-h-dvh flex-col bg-surface text-ink antialiased overflow-x-hidden">
+        <a href="#main-content" className="qf-skip-link">
+          Skip to content
+        </a>
+
+        {/* Content shell — solid paper surface, no glass/blur (DESIGN §13) */}
+        <div className="mx-auto sm:my-4 md:my-8 w-full max-w-6xl flex-1 flex flex-col md:flex-row rounded-none sm:rounded-2xl md:rounded-3xl border border-line bg-surface-2 shadow-paper overflow-hidden">
+          <SiteHeader />
+          <div className="flex-1 flex flex-col min-w-0 min-h-0">
+            <main id="main-content" className="flex-1 px-4 py-6 sm:px-6 md:py-8 lg:px-8 overflow-y-auto">
+              {children}
+            </main>
+            <SiteFooter />
+          </div>
+        </div>
+
+        {/* Cookie consent + consent-gated GTM/GA loader (STANDARDS §6) */}
+        <ConsentBanner />
+        <AnalyticsScripts />
+
+        {/* Consent-gated Vercel Web Analytics + Speed Insights (STANDARDS §6) */}
+        <VercelAnalytics />
+      </body>
+    </html>
+  );
+}
